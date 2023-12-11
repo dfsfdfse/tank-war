@@ -1,0 +1,11 @@
+({
+    "player1_s": TextureAtlas(path: "image/tank_T1_0.png", tile_size_x: 48., tile_size_y: 48., columns: 2, rows: 4),
+    "player1_m": TextureAtlas(path: "image/tank_T1_1.png", tile_size_x: 48., tile_size_y: 48., columns: 2, rows: 4),
+    "player1_l": TextureAtlas(path: "image/tank_T1_2.png", tile_size_x: 48., tile_size_y: 48., columns: 2, rows: 4),
+    "player2_s": TextureAtlas(path: "image/tank_T2_0.png", tile_size_x: 48., tile_size_y: 48., columns: 2, rows: 4),
+    "player2_m": TextureAtlas(path: "image/tank_T2_1.png", tile_size_x: 48., tile_size_y: 48., columns: 2, rows: 4),
+    "player2_l": TextureAtlas(path: "image/tank_T2_2.png", tile_size_x: 48., tile_size_y: 48., columns: 2, rows: 4),
+    "world": TextureAtlas(path: "image/background.png", tile_size_x: 630., tile_size_y: 630., columns: 1, rows: 1, padding_x: 3, padding_y: 3),
+    "logo": TextureAtlas(path: "image/logo.png", tile_size_x: 892., tile_size_y: 140., columns: 1, rows: 1),
+    "font": File(path: "fonts/JetBrainsMono-Bold.ttf"),
+})

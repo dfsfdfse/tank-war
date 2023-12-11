@@ -1,0 +1,22 @@
+[package]
+name = "tank-war"
+version = "0.1.0"
+edition = "2021"
+authors = ["realcool <realcoolqaq@gmail.com>"]
+exclude = ["assets"]
+
+[dependencies]
+bevy = { version = "0.12", default-features = false, features = [
+    "bevy_winit",
+    "bevy_render",
+    "bevy_sprite",
+    "bevy_ui",
+    "bevy_text",
+    "multi-threaded",
+    "default_font",
+    "png"
+] }
+serde = "1"
+lazy_static = "1.4"
+bevy_asset_loader = { version = "0.18", features = ["2d", "standard_dynamic_assets"] }
+bevy_common_assets = { version = "0.8", features = ["json"] }
