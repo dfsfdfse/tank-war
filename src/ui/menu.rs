@@ -5,83 +5,73 @@ use crate::utils::{Vec2Ext, Vec3Ext};
 
 pub struct MenuPlugin;
 
-#[derive(Component)]
-pub struct Menu;
-
 impl Plugin for MenuPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(GameState::Menu), spawn_menu)
-            .add_systems(Update, ui_event.run_if(in_state(GameState::Menu)))
-            .add_systems(OnExit(GameState::Menu), cleanup_menu);
+        app.add_state::<MenuState>().add_systems(OnEnter(GameState::Menu), menu_setup)
+            .add_systems(OnEnter(MenuState::Main), main_menu_setup)
+            .add_systems(Update, button_system.run_if(in_state(MenuState::Main)))
+            .add_systems(OnExit(GameState::Menu), menu_cleanup);
     }
 }
 
-#[derive(Component, Clone)]
-struct GameButton {
-    text: String,
-    normal: Color,
-    hovered: Color,
-    font: Option<Handle<Font>>,
+#[derive(Copy, Clone, Default, Eq, PartialEq, Hash, Debug, States)]
+pub enum MenuState {
+    Main,
+    Player1,
+    Player2,
+    MapEdit,
+    #[default]
+    Disabled,
 }
 
-impl Default for GameButton {
-    fn default() -> Self {
-        GameButton {
-            text: "".into(),
-            normal: Color::rgb(0.2, 0.2, 0.2),
-            hovered: Color::rgb(0.25, 0.25, 0.25),
-            font: None,
-        }
-    }
+#[derive(Component)]
+enum MenuAction {
+    Main,
+    Player1,
+    Player2,
+    MapEdit,
 }
 
-fn spawn_menu(mut commands: Commands, game_config: Res<GameConfig>, game_texture: Res<GameTexture>, assets: Res<Assets<TextureAtlas>>) {
-    if let Some(logo) = assets.get(&game_texture.logo) {
-        commands.spawn(NodeBundle {
-            style: Style {
-                width: Val::Percent(100.),
-                height: Val::Percent(100.),
-                display: Display::Flex,
-                flex_direction: FlexDirection::Column,
-                justify_content: JustifyContent::Center,
-                align_items: AlignItems::Center,
-                align_content: AlignContent::SpaceBetween,
-                ..Default::default()
-            },
+const NORMAL_BUTTON: Color = Color::rgb(0.2, 0.2, 0.2);
+const HOVERED_BUTTON: Color = Color::rgb(0.25, 0.25, 0.25);
+
+const PRESSED_BUTTON: Color = Color::rgb(0.3, 0.3, 0.3);
+
+fn menu_setup(mut menu_state: ResMut<NextState<MenuState>>) {
+    menu_state.set(MenuState::Main);
+}
+
+fn main_menu_setup(mut commands: Commands, game_config: Res<GameConfig>, game_texture: Res<GameTexture>, assets: Res<Assets<TextureAtlas>>) {
+    commands.spawn(NodeBundle {
+        style: Style {
+            width: Val::Percent(100.),
+            height: Val::Percent(100.),
+            display: Display::Flex,
+            flex_direction: FlexDirection::Column,
+            justify_content: JustifyContent::Center,
+            align_items: AlignItems::Center,
+            align_content: AlignContent::SpaceBetween,
             ..Default::default()
-        }).insert(Menu).with_children(|parent| {
+        },
+        ..Default::default()
+    }).insert(MenuAction::Main).with_children(|parent| {
+        if let Some(logo) = assets.get(&game_texture.logo) {
             parent.spawn(AtlasImageBundle {
                 texture_atlas: game_texture.logo.clone(),
-                transform: Transform {
-                    scale: logo.size.to_vec3().scale_x(&(game_config.world.size * (game_config.world.step * 0.8))),
-                    ..default()
-                },
+                transform: Transform::from_scale(logo.size.to_vec3().scale_x(&(game_config.world.size * (game_config.world.step * 0.8)))),
                 ..Default::default()
             });
-        }).with_children(|parent| {
-            spawn_button(parent, GameButton { text: "single player".to_string(), font: Some(game_texture.font.clone()), ..Default::default() });
-        }).with_children(|parent| {
-            spawn_button(parent, GameButton { text: "double player".to_string(), font: Some(game_texture.font.clone()), ..Default::default() });
-        }).with_children(|parent| {
-            spawn_button(parent, GameButton { text: "level editor".to_string(), font: Some(game_texture.font.clone()), ..Default::default() });
-        });
-    };
+        }
+    }).with_children(|parent| {
+        button_setup(parent, MenuAction::Player1, "single");
+    }).with_children(|parent| {
+        button_setup(parent, MenuAction::Player2, "double");
+    }).with_children(|parent| {
+        button_setup(parent, MenuAction::MapEdit, "editor");
+    });
 }
 
-fn player1_click(state: &mut NextState<GameState>, text: String) {
-    println!("{}", text);
-    state.set(GameState::Spawn);
-}
-
-fn player2_click(_: &mut NextState<GameState>, text: String) {
-    println!("{}", text);
-}
-
-fn map_editor_click(_: &mut NextState<GameState>, text: String) {
-    println!("{}", text);
-}
-
-fn spawn_button(parent: &mut ChildBuilder, game_button: GameButton) {
+fn button_setup(parent: &mut ChildBuilder, action: MenuAction, text: &str) {
     parent.spawn(ButtonBundle {
         style: Style {
             width: Val::Px(140.0),
@@ -91,13 +81,12 @@ fn spawn_button(parent: &mut ChildBuilder, game_button: GameButton) {
             margin: UiRect::all(Val::Px(20.)),
             ..Default::default()
         },
-        background_color: game_button.normal.into(),
+        background_color: NORMAL_BUTTON.into(),
         ..Default::default()
-    }).insert(game_button.clone()).with_children(|parent| {
+    }).insert(action).with_children(|parent| {
         parent.spawn(TextBundle::from_section(
-            game_button.text.clone(),
+            text,
             TextStyle {
-                font: game_button.font.unwrap(),
                 font_size: 20.0,
                 color: Color::rgb(0.9, 0.9, 0.9),
                 ..Default::default()
@@ -105,34 +94,33 @@ fn spawn_button(parent: &mut ChildBuilder, game_button: GameButton) {
     });
 }
 
-fn ui_event(
-    mut state: ResMut<NextState<GameState>>,
-    mut query: Query<(&Interaction, &mut BackgroundColor, &GameButton),
-        (Changed<Interaction>, With<Button>)>,
-) {
-    for (interaction, mut color, game_button) in query.iter_mut() {
-        match *interaction {
-            Interaction::Pressed => {
-                //game_button.text single player
-                if game_button.text == "single player".to_string() {
-                    player1_click(&mut state, game_button.text.clone());
-                } else if game_button.text == "double player".to_string() {
-                    player2_click(&mut state, game_button.text.clone());
-                } else if game_button.text == "level editor".to_string() {
-                    map_editor_click(&mut state, game_button.text.clone());
+fn button_system(mut query: Query<(&Interaction, &mut BackgroundColor, &MenuAction), (Changed<Interaction>, With<Button>)>, mut game_state: ResMut<NextState<GameState>>) {
+    for (interaction, mut color, action) in &mut query {
+        *color = match *interaction {
+            Interaction::Hovered => HOVERED_BUTTON.into(),
+            Interaction::Pressed => PRESSED_BUTTON.into(),
+            _ => NORMAL_BUTTON.into()
+        };
+        if *interaction == Interaction::Pressed {
+            match action {
+                MenuAction::Player1 => {
+                    game_state.set(GameState::Spawn);
+                    println!("player1");
                 }
-            }
-            Interaction::Hovered => {
-                *color = game_button.hovered.into();
-            }
-            Interaction::None => {
-                *color = game_button.normal.into();
+                MenuAction::Player2 => {
+                    game_state.set(GameState::Spawn);
+                    println!("player2");
+                }
+                MenuAction::MapEdit => {
+                    println!("map editor");
+                }
+                _ => {}
             }
         }
     }
 }
 
-fn cleanup_menu(mut commands: Commands, menu: Query<Entity, With<Menu>>) {
+fn menu_cleanup(mut commands: Commands, menu: Query<Entity, With<MenuAction>>) {
     for entity in menu.iter() {
         commands.entity(entity).despawn_recursive();
     }
