@@ -40,13 +40,13 @@ fn insert_resource_game_config(mut commands: Commands, game_config: Res<GameConf
 #[derive(Resource)]
 pub struct GameConfigHandle(pub Handle<GameConfig>);
 
-#[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
+#[derive(Clone)]
 pub struct GameMap {
     pub size: Vec2,
     pub data: Vec<Vec<LandType>>,
 }
 
-#[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
+#[derive(Clone)]
 pub enum LandType {
     Tree,
     Ice,
