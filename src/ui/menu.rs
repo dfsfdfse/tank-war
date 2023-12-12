@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use lazy_static::lazy_static;
 use crate::GameState;
 use crate::load::{GameConfig, GameTexture};
 use crate::utils::{Vec2Ext, Vec3Ext};
@@ -37,12 +38,8 @@ const HOVERED_BUTTON: Color = Color::rgb(0.25, 0.25, 0.25);
 
 const PRESSED_BUTTON: Color = Color::rgb(0.3, 0.3, 0.3);
 
-fn menu_setup(mut menu_state: ResMut<NextState<MenuState>>) {
-    menu_state.set(MenuState::Main);
-}
-
-fn main_menu_setup(mut commands: Commands, game_config: Res<GameConfig>, game_texture: Res<GameTexture>, assets: Res<Assets<TextureAtlas>>) {
-    commands.spawn(NodeBundle {
+pub fn full_screen_node_setup() -> NodeBundle {
+    NodeBundle {
         style: Style {
             width: Val::Percent(100.),
             height: Val::Percent(100.),
@@ -54,7 +51,15 @@ fn main_menu_setup(mut commands: Commands, game_config: Res<GameConfig>, game_te
             ..Default::default()
         },
         ..Default::default()
-    }).insert(MenuAction::Main).with_children(|parent| {
+    }
+}
+
+fn menu_setup(mut menu_state: ResMut<NextState<MenuState>>) {
+    menu_state.set(MenuState::Main);
+}
+
+fn main_menu_setup(mut commands: Commands, game_config: Res<GameConfig>, game_texture: Res<GameTexture>, assets: Res<Assets<TextureAtlas>>) {
+    commands.spawn(full_screen_node_setup()).insert(MenuAction::Main).with_children(|parent| {
         if let Some(logo) = assets.get(&game_texture.logo) {
             parent.spawn(AtlasImageBundle {
                 texture_atlas: game_texture.logo.clone(),
