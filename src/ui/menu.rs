@@ -10,7 +10,7 @@ impl Plugin for MenuPlugin {
         app.add_state::<MenuState>().add_systems(OnEnter(GameState::Menu), menu_setup)
             .add_systems(OnEnter(MenuState::Main), main_menu_setup)
             .add_systems(Update, button_system.run_if(in_state(MenuState::Main)))
-            .add_systems(OnExit(GameState::Menu), menu_cleanup);
+            .add_systems(OnExit(MenuState::Main), menu_cleanup);
     }
 }
 
@@ -94,7 +94,7 @@ fn button_setup(parent: &mut ChildBuilder, action: MenuAction, text: &str) {
     });
 }
 
-fn button_system(mut query: Query<(&Interaction, &mut BackgroundColor, &MenuAction), (Changed<Interaction>, With<Button>)>, mut game_state: ResMut<NextState<GameState>>) {
+fn button_system(mut query: Query<(&Interaction, &mut BackgroundColor, &MenuAction), (Changed<Interaction>, With<Button>)>, mut game_state: ResMut<NextState<GameState>>, mut map_state: ResMut<NextState<MenuState>>) {
     for (interaction, mut color, action) in &mut query {
         *color = match *interaction {
             Interaction::Hovered => HOVERED_BUTTON.into(),
@@ -113,6 +113,7 @@ fn button_system(mut query: Query<(&Interaction, &mut BackgroundColor, &MenuActi
                 }
                 MenuAction::MapEdit => {
                     println!("map editor");
+                    map_state.set(MenuState::MapEdit);
                 }
                 _ => {}
             }

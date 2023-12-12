@@ -7,5 +7,9 @@
     "player2_l": TextureAtlas(path: "image/tank_T2_2.png", tile_size_x: 48., tile_size_y: 48., columns: 2, rows: 4),
     "world": TextureAtlas(path: "image/background.png", tile_size_x: 630., tile_size_y: 630., columns: 1, rows: 1, padding_x: 3, padding_y: 3),
     "logo": TextureAtlas(path: "image/logo.png", tile_size_x: 892., tile_size_y: 140., columns: 1, rows: 1),
+    "iron": TextureAtlas(path: "image/iron.png", tile_size_x: 24., tile_size_y: 24., columns: 1, rows: 1),
+    "ice": TextureAtlas(path: "image/ice.png", tile_size_x: 24., tile_size_y: 24., columns: 1, rows: 1),
+    "tree": TextureAtlas(path: "image/tree.png", tile_size_x: 24., tile_size_y: 24., columns: 1, rows: 1),
+    "brick": TextureAtlas(path: "image/brick.png", tile_size_x: 24., tile_size_y: 24., columns: 1, rows: 1),
     "font": File(path: "fonts/JetBrainsMono-Bold.ttf"),
 })

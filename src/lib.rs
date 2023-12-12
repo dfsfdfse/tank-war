@@ -5,6 +5,7 @@ mod ui;
 
 use bevy::prelude::*;
 use crate::load::LoadPlugin;
+use crate::ui::editor::EditorPlugin;
 use crate::ui::menu::MenuPlugin;
 use crate::world::WorldPlugin;
 
@@ -32,7 +33,7 @@ impl Plugin for GamePlugin {
                     }),
                     ..default()
                 }
-            ), LoadPlugin, WorldPlugin, MenuPlugin)
+            ), LoadPlugin, WorldPlugin, MenuPlugin, EditorPlugin)
         );
     }
 }

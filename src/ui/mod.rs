@@ -1,2 +1,2 @@
 pub mod menu;
-mod editor;
+pub mod editor;

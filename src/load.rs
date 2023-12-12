@@ -97,5 +97,13 @@ pub struct GameTexture {
     pub logo: Handle<TextureAtlas>,
     #[asset(key = "font")]
     pub font: Handle<Font>,
+    #[asset(key = "tree")]
+    pub tree: Handle<TextureAtlas>,
+    #[asset(key = "ice")]
+    pub ice: Handle<TextureAtlas>,
+    #[asset(key = "brick")]
+    pub brick: Handle<TextureAtlas>,
+    #[asset(key = "iron")]
+    pub iron: Handle<TextureAtlas>,
 }
 
